@@ -1,0 +1,58 @@
+apply plugin: 'kotlin'
+apply plugin: 'application'
+
+group 'c6h2cl2.discordbot'
+version '1.0-SNAPSHOT'
+mainClassName = "c6h2cl2.discordbot.wakaryu.DetectWakaryuBotKt"
+
+buildscript {
+    ext.kotlin_version = '1.1.3-2'
+    ext.discord4j_version = '2.8.4'
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+apply plugin: 'kotlin'
+
+configurations {
+    embed
+    compile.extendsFrom(embed)
+}
+
+repositories {
+    mavenCentral()
+    jcenter() //This prevents issues with transitive dependencies
+    maven {
+        url  "https://jitpack.io"
+    }
+}
+
+dependencies {
+    embed "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
+    embed "com.github.austinv11:Discord4J:$discord4j_version"
+    embed 'com.beust:klaxon:0.30'
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+
+run {
+    if (project.hasProperty('args')) {    // "args" というプロパティが渡されていたら
+        args project.args.split('\\s+')   // 空白文字で split して、 run タスクの args オプションにセットする
+    }
+}
+
+jar {
+    from configurations.embed.collect { it.isDirectory() ? it : zipTree(it) }
+    manifest {
+        attributes 'Main-Class': mainClassName
+    }
+}
